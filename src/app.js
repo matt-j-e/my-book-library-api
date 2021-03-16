@@ -1,5 +1,5 @@
 const express = require('express');
-const readercontrollers = require('./controllers/readers');
+const readerControllers = require('./controllers/readers');
 
 const app = express();
 
@@ -9,6 +9,10 @@ app.get('/', (req, res) =>{
     res.send("Hello, world!");
 });
 
-app.post('/readers', readercontrollers.create);
+app.get('/readers', readerControllers.getAll);
+app.get('/readers/:readerId', readerControllers.getById);
+app.post('/readers', readerControllers.create);
+app.patch('/readers/:readerId', readerControllers.updateById);
+app.delete('/readers/:readerId', readerControllers.deleteById);
 
 module.exports = app;
