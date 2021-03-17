@@ -34,4 +34,4 @@ exports.deleteById = (req, res) => {
       if (!deletedRows) res.status(404).json({ error: "The reader could not be found." });
       else res.status(204).json(deletedRows);
     })
-}
+};
