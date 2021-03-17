@@ -16,7 +16,8 @@ describe('/readers', () => {
           .post('/readers')
           .send({
             name: 'Markus Zusak',
-            email: 'zusak@gmail.com'
+            email: 'zusak@gmail.com',
+            password: 'pw'
           });
 
         const newReader = await Reader.findByPk(res.body.id, { raw: true });
@@ -25,6 +26,7 @@ describe('/readers', () => {
         expect(res.body.name).to.equal('Markus Zusak');
         expect(newReader.name).to.equal('Markus Zusak');
         expect(newReader.email).to.equal('zusak@gmail.com');
+        expect(newReader.password).to.equal('pw');
       });
     });
   });
@@ -35,9 +37,9 @@ describe('/readers', () => {
       await Reader.destroy({ where: {} });
 
       readers = await Promise.all([
-        Reader.create({ name: faker.name.findName(), email: faker.internet.email() }),
-        Reader.create({ name: faker.name.findName(), email: faker.internet.email() }),
-        Reader.create({ name: faker.name.findName(), email: faker.internet.email() }),
+        Reader.create({ name: faker.name.findName(), email: faker.internet.email(), password: faker.internet.password() }),
+        Reader.create({ name: faker.name.findName(), email: faker.internet.email(), password: faker.internet.password() }),
+        Reader.create({ name: faker.name.findName(), email: faker.internet.email(), password: faker.internet.password() }),
       ]);
     });
 
@@ -51,6 +53,7 @@ describe('/readers', () => {
           const expected = readers.find((a) => a.id === reader.id);
           expect(reader.name).to.equal(expected.name);
           expect(reader.email).to.equal(expected.email);
+          expect(reader.password).to.equal(expected.password);
         });
       });
 
@@ -63,6 +66,7 @@ describe('/readers', () => {
         expect(res.status).to.equal(200);
         expect(res.body.name).to.equal(readers[0].name);
         expect(res.body.email).to.equal(readers[0].email);
+        expect(res.body.password).to.equal(readers[0].password);
       });
 
       it('returns a 404 if reader id does not exist', async () => {
@@ -91,6 +95,7 @@ describe('/readers', () => {
         expect(res.status).to.equal(200);
         expect(updatedReader.name).to.equal(newName);
         expect(updatedReader.email).to.equal(readers[0].email);
+        expect(updatedReader.password).to.equal(readers[0].password);
 
       });
 
@@ -110,6 +115,26 @@ describe('/readers', () => {
         expect(res.status).to.equal(200);
         expect(updatedReader.name).to.equal(readers[0].name);
         expect(updatedReader.email).to.equal(newEmail);
+        expect(updatedReader.password).to.equal(readers[0].password);
+      });
+
+      it('updates reader password by id', async () => {
+        const newPassword = faker.internet.password();
+        while (newPassword === readers[0].password) {
+          newPassword = faker.internet.password();
+        }
+        const res = await request(app)
+          .patch(`/readers/${readers[0].id}`)
+          .send({
+            password: newPassword
+          });
+        
+        const updatedReader = await Reader.findByPk(readers[0].id, { raw: true });
+
+        expect(res.status).to.equal(200);
+        expect(updatedReader.name).to.equal(readers[0].name);
+        expect(updatedReader.email).to.equal(readers[0].email);
+        expect(updatedReader.password).to.equal(newPassword);
       });
 
       it('returns a 404 if the artist does not exist', async () => {
