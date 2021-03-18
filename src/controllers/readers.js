@@ -3,7 +3,12 @@ const { Reader } = require('../models');
 exports.create = (req, res) => {
   Reader.create(req.body)
     .then(newReader => res.status(201)
-    .json(newReader));
+    .json(newReader))
+    .catch(error => {
+      // console.log(error.message);
+      res.status(400)
+      .json({ error: error.message });
+    });
 };
 
 exports.getAll = (req, res) => {

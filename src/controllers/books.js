@@ -3,7 +3,12 @@ const { Book } = require('../models');
 exports.create = (req, res) => {
   Book.create(req.body)
     .then(newBook => res.status(201)
-    .json(newBook));
+    .json(newBook))
+    .catch(error => {
+        console.log(error.message);
+        res.status(400)
+      .json({ error: error.message });
+    })
 };
 
 exports.getAll = (req, res) => {

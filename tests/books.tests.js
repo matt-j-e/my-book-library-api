@@ -6,7 +6,7 @@ const faker = require('faker');
 const { response } = require('../src/app');
 
 describe('/books', () => {
-  before(async () => Book.sequelize.sync());
+  before(async () => await Book.sequelize.sync());
 
   describe('with no data in the database', () => {
     describe('POST /books', () => {
@@ -29,6 +29,60 @@ describe('/books', () => {
         expect(newBook.author).to.equal('Markus Zusak');
         expect(newBook.genre).to.equal('fiction');
         expect(newBook.ISBN).to.equal('23456X');
+      });
+
+      it('returns a 400 plus error message when title not provided', async () => {
+        const res = await request(app)
+          .post('/books')
+          .send({
+            author: 'Markus Zusak',
+            genre: 'fiction',
+            ISBN: '23456X'
+          });
+        
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('notNull Violation: Book.title cannot be null');
+      });
+
+      it('returns a 400 plus error message when author not provided', async () => {
+        const res = await request(app)
+          .post('/books')
+          .send({
+            title: 'The Book Thief',
+            genre: 'fiction',
+            ISBN: '23456X'
+          });
+        
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('notNull Violation: Book.author cannot be null');
+      });
+
+      it('returns a 400 plus error message when title blank', async () => {
+        const res = await request(app)
+          .post('/books')
+          .send({
+            title: '',
+            author: 'Markus Zusak',
+            genre: 'fiction',
+            ISBN: '23456X'
+          });
+        
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('Validation error: Validation notEmpty on title failed');
+      });
+
+      it('returns a 400 plus error message when author blank', async () => {
+        const res = await request(app)
+          .post('/books')
+          .send({
+            title: 'The Book Thief',
+            author: '',
+            genre: 'fiction',
+            ISBN: '23456X'
+          });
+        
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('Validation error: Validation notEmpty on author failed');
       });
     });
   });

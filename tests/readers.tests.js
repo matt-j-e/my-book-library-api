@@ -6,7 +6,7 @@ const faker = require('faker');
 const { response } = require('../src/app');
 
 describe('/readers', () => {
-  before(async () => Reader.sequelize.sync());
+  before(async () => await Reader.sequelize.sync());
 
   describe('with no data in the database', () => {
     describe('POST /readers', () => {
@@ -17,7 +17,7 @@ describe('/readers', () => {
           .send({
             name: 'Markus Zusak',
             email: 'zusak@gmail.com',
-            password: 'pw'
+            password: 'passsword'
           });
 
         const newReader = await Reader.findByPk(res.body.id, { raw: true });
@@ -26,7 +26,82 @@ describe('/readers', () => {
         expect(res.body.name).to.equal('Markus Zusak');
         expect(newReader.name).to.equal('Markus Zusak');
         expect(newReader.email).to.equal('zusak@gmail.com');
-        expect(newReader.password).to.equal('pw');
+        expect(newReader.password).to.equal('passsword');
+      });
+
+      it('returns a 400 plus error message when name not provided', async () => {
+        const res = await request(app)
+          .post('/readers')
+          .send({
+            email: 'zusak@gmail.com',
+            password: 'passsword'
+          });
+        
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('notNull Violation: Reader.name cannot be null');
+      });
+
+      it('returns a 400 plus error message when email not provided', async () => {
+        const res = await request(app)
+          .post('/readers')
+          .send({
+            name: 'Markus Zusak',
+            password: 'passsword'
+          });
+        
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('notNull Violation: Reader.email cannot be null');
+      });
+
+      it('returns a 400 plus error message when password not provided', async () => {
+        const res = await request(app)
+          .post('/readers')
+          .send({
+            name: 'Markus Zusak',
+            email: 'zusak@gmail.com'
+          });
+        
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('notNull Violation: Reader.password cannot be null');
+      });
+
+      it('returns a 400 plus error message when name is a blank string', async () => {
+        const res = await request(app)
+          .post('/readers')
+          .send({
+            name: '',
+            email: 'zusak@gmail.com',
+            password: 'passsword'
+          });
+        
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('Validation error: Validation notEmpty on name failed');
+      });
+
+      it('returns a 400 plus error message when email is invalid', async () => {
+        const res = await request(app)
+          .post('/readers')
+          .send({
+            name: 'Markus Zusak',
+            email: 'anInvalidEmail',
+            password: 'passsword'
+          });
+        
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('Validation error: Validation isEmail on email failed');
+      });
+
+      it('returns a 400 plus error message when password less than 9 chars', async () => {
+        const res = await request(app)
+          .post('/readers')
+          .send({
+            name: 'Markus Zusak',
+            email: 'zusak@gmail.com',
+            password: 'pw'
+          });
+        
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('Validation error: Validation len on password failed');
       });
     });
   });
