@@ -11,14 +11,21 @@ describe('/readers', () => {
   describe('with no data in the database', () => {
     describe('POST /readers', () => {
 
+      let testReader;
+
+      beforeEach(async () => {
+        await Reader.destroy({  where: {} });
+        testReader = {
+          name: 'Markus Zusak',
+          email: 'zusak@gmail.com',
+          password: 'passsword'
+        };
+      });
+
       it('creates a new reader', async () => {
         const res = await request(app)
           .post('/readers')
-          .send({
-            name: 'Markus Zusak',
-            email: 'zusak@gmail.com',
-            password: 'passsword'
-          });
+          .send(testReader);
 
         const newReader = await Reader.findByPk(res.body.id, { raw: true });
 
@@ -30,42 +37,41 @@ describe('/readers', () => {
       });
 
       it('returns a 400 plus error message when name not provided', async () => {
+        testReader.name = null;
+        const errMsg = 'notNull Violation: Reader.name cannot be null'
         const res = await request(app)
           .post('/readers')
-          .send({
-            email: 'zusak@gmail.com',
-            password: 'passsword'
-          });
+          .send(testReader);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal('notNull Violation: Reader.name cannot be null');
+          expect(res.body.error).to.equal(errMsg);
       });
 
       it('returns a 400 plus error message when email not provided', async () => {
+        testReader.email = null;
+        const errMsg = 'notNull Violation: Reader.email cannot be null';
         const res = await request(app)
           .post('/readers')
-          .send({
-            name: 'Markus Zusak',
-            password: 'passsword'
-          });
+          .send(testReader);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal('notNull Violation: Reader.email cannot be null');
+          expect(res.body.error).to.equal(errMsg);
       });
 
       it('returns a 400 plus error message when password not provided', async () => {
+        testReader.password = null;
+        const errMsg = 'notNull Violation: Reader.password cannot be null';
         const res = await request(app)
           .post('/readers')
-          .send({
-            name: 'Markus Zusak',
-            email: 'zusak@gmail.com'
-          });
+          .send(testReader);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal('notNull Violation: Reader.password cannot be null');
+          expect(res.body.error).to.equal(errMsg);
       });
 
       it('returns a 400 plus error message when name is a blank string', async () => {
+        testReader.name = '';
+        const errMsg = 'Validation error: Validation notEmpty on name failed';
         const res = await request(app)
           .post('/readers')
           .send({
@@ -75,33 +81,29 @@ describe('/readers', () => {
           });
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal('Validation error: Validation notEmpty on name failed');
+          expect(res.body.error).to.equal(errMsg);
       });
 
       it('returns a 400 plus error message when email is invalid', async () => {
+        testReader.email = 'invalidEmail';
+        const errMsg = 'Validation error: Validation isEmail on email failed';
         const res = await request(app)
           .post('/readers')
-          .send({
-            name: 'Markus Zusak',
-            email: 'anInvalidEmail',
-            password: 'passsword'
-          });
+          .send(testReader);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal('Validation error: Validation isEmail on email failed');
+          expect(res.body.error).to.equal(errMsg);
       });
 
       it('returns a 400 plus error message when password less than 9 chars', async () => {
+        testReader.password = 'pw';
+        const errMsg = 'Validation error: Validation len on password failed';
         const res = await request(app)
           .post('/readers')
-          .send({
-            name: 'Markus Zusak',
-            email: 'zusak@gmail.com',
-            password: 'pw'
-          });
+          .send(testReader);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal('Validation error: Validation len on password failed');
+          expect(res.body.error).to.equal(errMsg);
       });
     });
   });

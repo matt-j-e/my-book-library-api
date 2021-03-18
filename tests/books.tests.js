@@ -11,15 +11,22 @@ describe('/books', () => {
   describe('with no data in the database', () => {
     describe('POST /books', () => {
 
+      let testbook;
+
+      beforeEach(async () => {
+        await Book.destroy({ where: {} });
+        testBook = {
+          title: 'The Book Thief',
+          author: 'Markus Zusak',
+          genre: 'fiction',
+          ISBN: '23456X'
+        };
+      })
+
       it('creates a new book', async () => {
         const res = await request(app)
           .post('/books')
-          .send({
-            title: 'The Book Thief',
-            author: 'Markus Zusak',
-            genre: 'fiction',
-            ISBN: '23456X'
-          });
+          .send(testBook);
 
         const newBook = await Book.findByPk(res.body.id, { raw: true });
 
@@ -32,57 +39,47 @@ describe('/books', () => {
       });
 
       it('returns a 400 plus error message when title not provided', async () => {
+        testBook.title = null;
+        const errMsg = 'notNull Violation: Book.title cannot be null';
         const res = await request(app)
           .post('/books')
-          .send({
-            author: 'Markus Zusak',
-            genre: 'fiction',
-            ISBN: '23456X'
-          });
+          .send(testBook);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal('notNull Violation: Book.title cannot be null');
+          expect(res.body.error).to.equal(errMsg);
       });
 
       it('returns a 400 plus error message when author not provided', async () => {
+        testBook.author = null;
+        const errMsg = 'notNull Violation: Book.author cannot be null';
         const res = await request(app)
           .post('/books')
-          .send({
-            title: 'The Book Thief',
-            genre: 'fiction',
-            ISBN: '23456X'
-          });
+          .send(testBook);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal('notNull Violation: Book.author cannot be null');
+          expect(res.body.error).to.equal(errMsg);
       });
 
       it('returns a 400 plus error message when title blank', async () => {
+        testBook.title = '';
+        const errMsg = 'Validation error: Validation notEmpty on title failed'
         const res = await request(app)
           .post('/books')
-          .send({
-            title: '',
-            author: 'Markus Zusak',
-            genre: 'fiction',
-            ISBN: '23456X'
-          });
+          .send(testBook);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal('Validation error: Validation notEmpty on title failed');
+          expect(res.body.error).to.equal(errMsg);
       });
 
       it('returns a 400 plus error message when author blank', async () => {
+        testBook.author = '';
+        const errMsg = 'Validation error: Validation notEmpty on author failed'
         const res = await request(app)
           .post('/books')
-          .send({
-            title: 'The Book Thief',
-            author: '',
-            genre: 'fiction',
-            ISBN: '23456X'
-          });
+          .send(testBook);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal('Validation error: Validation notEmpty on author failed');
+          expect(res.body.error).to.equal(errMsg);
       });
     });
   });
