@@ -21,7 +21,7 @@ describe('/books', () => {
           genre: 'fiction',
           ISBN: '23456X'
         };
-      })
+      });
 
       it('creates a new book', async () => {
         const res = await request(app)
@@ -40,46 +40,46 @@ describe('/books', () => {
 
       it('returns a 400 plus error message when title not provided', async () => {
         testBook.title = null;
-        const errMsg = 'notNull Violation: Book.title cannot be null';
+        const errorMessages = ['Book.title cannot be null'];
         const res = await request(app)
           .post('/books')
           .send(testBook);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal(errMsg);
+          expect(res.body.error).to.eql(errorMessages);
       });
 
       it('returns a 400 plus error message when author not provided', async () => {
         testBook.author = null;
-        const errMsg = 'notNull Violation: Book.author cannot be null';
+        const errorMessages = ['Book.author cannot be null'];
         const res = await request(app)
           .post('/books')
           .send(testBook);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal(errMsg);
+          expect(res.body.error).to.eql(errorMessages);
       });
 
       it('returns a 400 plus error message when title blank', async () => {
         testBook.title = '';
-        const errMsg = 'Validation error: Validation notEmpty on title failed'
+        const errorMessages = ['Validation notEmpty on title failed'];
         const res = await request(app)
           .post('/books')
           .send(testBook);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal(errMsg);
+          expect(res.body.error).to.eql(errorMessages);
       });
 
       it('returns a 400 plus error message when author blank', async () => {
         testBook.author = '';
-        const errMsg = 'Validation error: Validation notEmpty on author failed'
+        const errorMessages = ['Validation notEmpty on author failed'];
         const res = await request(app)
           .post('/books')
           .send(testBook);
         
           expect(res.status).to.equal(400);
-          expect(res.body.error).to.equal(errMsg);
+          expect(res.body.error).to.eql(errorMessages);
       });
     });
   });
