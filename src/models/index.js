@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 const ReaderModel = require('./reader');
 const BookModel = require('./book');
 const AuthorModel = require('./author');
+const GenreModel = require('./genre');
 
 const { DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT } = process.env;
 
@@ -16,13 +17,15 @@ const setupDatabase = () => {
     const Reader = ReaderModel(connection, Sequelize);
     const Book = BookModel(connection, Sequelize);
     const Author = AuthorModel(connection, Sequelize);
+    const Genre = GenreModel(connection, Sequelize);
 
     connection.sync({ alter: true });
 
     return {
         Reader,
         Book,
-        Author
+        Author,
+        Genre,
     };
 };
 
