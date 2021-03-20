@@ -16,8 +16,8 @@ describe('/readers', () => {
       beforeEach(async () => {
         await Reader.destroy({  where: {} });
         testReader = {
-          name: 'Markus Zusak',
-          email: 'zusak@gmail.com',
+          name: 'Matt Edwards',
+          email: 'matt@gmail.com',
           password: 'passsword'
         };
       });
@@ -30,9 +30,9 @@ describe('/readers', () => {
         const newReader = await Reader.findByPk(res.body.id, { raw: true });
 
         expect(res.status).to.equal(201);
-        expect(res.body.name).to.equal('Markus Zusak');
-        expect(newReader.name).to.equal('Markus Zusak');
-        expect(newReader.email).to.equal('zusak@gmail.com');
+        expect(res.body.name).to.equal('Matt Edwards');
+        expect(newReader.name).to.equal('Matt Edwards');
+        expect(newReader.email).to.equal('matt@gmail.com');
         expect(newReader.password).to.equal('passsword');
       });
 
@@ -210,7 +210,7 @@ describe('/readers', () => {
         expect(updatedReader.password).to.equal(newPassword);
       });
 
-      it('returns a 404 if the artist does not exist', async () => {
+      it('returns a 404 if the reader does not exist', async () => {
         const res = await request(app)
           .patch('/readers/65432')
           .send({ name: "New Name" });
