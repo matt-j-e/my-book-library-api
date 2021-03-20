@@ -74,11 +74,7 @@ describe('/readers', () => {
         const errorMessages = ['Validation notEmpty on name failed'];
         const res = await request(app)
           .post('/readers')
-          .send({
-            name: '',
-            email: 'zusak@gmail.com',
-            password: 'passsword'
-          });
+          .send(testReader);
         
           expect(res.status).to.equal(400);
           expect(res.body.error).to.eql(errorMessages);
@@ -130,7 +126,7 @@ describe('/readers', () => {
           const expected = readers.find((a) => a.id === reader.id);
           expect(reader.name).to.equal(expected.name);
           expect(reader.email).to.equal(expected.email);
-          expect(reader.password).to.equal(expected.password);
+          expect(reader.password).to.equal(undefined);
         });
       });
 
@@ -143,7 +139,7 @@ describe('/readers', () => {
         expect(res.status).to.equal(200);
         expect(res.body.name).to.equal(readers[0].name);
         expect(res.body.email).to.equal(readers[0].email);
-        expect(res.body.password).to.equal(readers[0].password);
+        expect(res.body.password).to.equal(undefined);
       });
 
       it('returns a 404 if reader id does not exist', async () => {

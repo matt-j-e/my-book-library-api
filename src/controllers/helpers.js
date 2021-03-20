@@ -12,22 +12,25 @@ const getModel = (model) => {
 const createItem = (model, res, item) => {
   const Model = getModel(model);
 
-  return Model.create(item)
-    .then(newItem => res.status(201)
-    .json(newItem))
-    .catch(error => {
-      // console.log(error.errors.map(e => e.message));
-      const errorMessages = error.errors.map(e => e.message);
-      res.status(400).json({ error: errorMessages });
-    });
+  return Model.create(item).then((newItem) => {
+    if (newItem.dataValues.password) delete newItem.dataValues.password;
+    res.status(201).json(newItem);
+  })
+  .catch(error => {
+    const errorMessages = error.errors.map(e => e.message);
+    res.status(400).json({ error: errorMessages });
+  });
 };
 
 const getAllItems = (model, res) => {
   const Model = getModel(model);
 
-  return Model.findAll()
-    .then(items => res.status(200)
-    .json(items));
+  return Model.findAll().then((items) => {
+    items.map(item => {
+      if (item.dataValues.password) delete item.dataValues.password;
+    });
+    res.status(200).json(items);
+  });
 };
 
 const getItemById = (model, res, id) => {
@@ -38,6 +41,7 @@ const getItemById = (model, res, id) => {
       if (!item) {
         res.status(404).json({ error: `The ${model} could not be found.` });
       } else {
+        if (item.dataValues.password) delete item.dataValues.password;
         res.status(200).json(item);
       }
     });
