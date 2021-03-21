@@ -1,9 +1,9 @@
 const { expect } = require('chai');
 const request = require('supertest');
-const { Reader, Book } = require('../src/models');
+const { Genre, Book } = require('../src/models');
 const app = require('../src/app');
 const faker = require('faker');
-const { response } = require('../src/app');
+// const { response } = require('../src/app');
 
 describe('/books', () => {
   before(async () => await Book.sequelize.sync());
@@ -11,14 +11,17 @@ describe('/books', () => {
   describe('with no data in the database', () => {
     describe('POST /books', () => {
 
-      let testbook;
+      let testBook;
+      let testGenre
 
       beforeEach(async () => {
         await Book.destroy({ where: {} });
+        await Genre.destroy({ where: {} });
+        testGenre = await Genre.create({ name: "Fiction" });
         testBook = {
           title: 'The Book Thief',
           author: 'Markus Zusak',
-          genre: 'fiction',
+          GenreId: testGenre.id,
           ISBN: '23456X'
         };
       });
@@ -34,7 +37,7 @@ describe('/books', () => {
         expect(res.body.title).to.equal('The Book Thief');
         expect(newBook.title).to.equal('The Book Thief');
         expect(newBook.author).to.equal('Markus Zusak');
-        expect(newBook.genre).to.equal('fiction');
+        expect(newBook.GenreId).to.equal(testGenre.id);
         expect(newBook.ISBN).to.equal('23456X');
       });
 
@@ -86,13 +89,21 @@ describe('/books', () => {
 
   describe('with the database populated', () => {
 
+    let testGenres;
+
     beforeEach(async () => {
       await Book.destroy({ where: {} });
+      await Genre.destroy({ where: {} });
+
+      testGenres = await Promise.all([
+        Genre.create({ name: "Fiction" }),
+        Genre.create({ name: "Science Fiction" })
+      ])
 
       books = await Promise.all([
-        Book.create({ title: faker.random.words(), author: faker.name.findName(), genre: faker.random.word(), ISBN: faker.random.alphaNumeric() }),
-        Book.create({ title: faker.random.words(), author: faker.name.findName(), genre: faker.random.word(), ISBN: faker.random.alphaNumeric() }),
-        Book.create({ title: faker.random.words(), author: faker.name.findName(), genre: faker.random.word(), ISBN: faker.random.alphaNumeric() }),
+        Book.create({ title: faker.random.words(), author: faker.name.findName(), Genreid: testGenres[0].id, ISBN: faker.random.alphaNumeric() }),
+        Book.create({ title: faker.random.words(), author: faker.name.findName(), Genreid: testGenres[0].id, ISBN: faker.random.alphaNumeric() }),
+        Book.create({ title: faker.random.words(), author: faker.name.findName(), Genreid: testGenres[0].id, ISBN: faker.random.alphaNumeric() }),
       ]);
     });
 
@@ -175,14 +186,11 @@ describe('/books', () => {
       });
 
       it('updates book genre by id', async () => {
-        const newGenre = faker.random.word();
-        while (newGenre === books[0].genre) {
-          newGenre = faker.random.word();
-        }
+        const newGenreId = testGenres[1].id;
         const res = await request(app)
           .patch(`/books/${books[0].id}`)
           .send({
-            genre: newGenre
+            GenreId: newGenreId
           });
         
         const updatedBook = await Book.findByPk(books[0].id, { raw: true });
@@ -190,7 +198,7 @@ describe('/books', () => {
         expect(res.status).to.equal(200);
         expect(updatedBook.title).to.equal(books[0].title);
         expect(updatedBook.author).to.equal(books[0].author);
-        expect(updatedBook.genre).to.equal(newGenre);
+        expect(updatedBook.GenreId).to.equal(newGenreId);
         expect(updatedBook.ISBN).to.equal(books[0].ISBN);
       });
 

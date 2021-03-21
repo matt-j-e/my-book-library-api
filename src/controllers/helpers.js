@@ -11,6 +11,17 @@ const getModel = (model) => {
   return models[model];
 };
 
+const getInclude = (model) => {
+  const includes = {
+    reader: null,
+    book: Genre,
+    author: null,
+    genre: Book
+  };
+
+  return includes[model];
+};
+
 const createItem = (model, res, item) => {
   const Model = getModel(model);
 
@@ -27,7 +38,7 @@ const createItem = (model, res, item) => {
 const getAllItems = (model, res) => {
   const Model = getModel(model);
 
-  return Model.findAll().then((items) => {
+  return Model.findAll({ include: getInclude(model) }).then((items) => {
     items.map(item => {
       if (item.dataValues.password) delete item.dataValues.password;
     });
@@ -37,8 +48,8 @@ const getAllItems = (model, res) => {
 
 const getItemById = (model, res, id) => {
   const Model = getModel(model);
-
-  return Model.findByPk(id)
+  
+  return Model.findByPk(id, { include: getInclude(model) })
     .then(item => {
       if (!item) {
         res.status(404).json({ error: `The ${model} could not be found.` });

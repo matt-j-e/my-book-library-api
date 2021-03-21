@@ -14,9 +14,6 @@ module.exports = (connection, DataTypes) => {
                 notEmpty: true,
             }
         },
-        genre: {
-            type: DataTypes.STRING,
-        },
         ISBN: {
             type: DataTypes.STRING,
         }

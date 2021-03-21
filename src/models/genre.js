@@ -3,6 +3,7 @@ module.exports = (connection, DataTypes) => {
         name: {
             type: DataTypes.STRING,
             allowNull: false,
+            unique: true,
             validate: {
                 notEmpty: true,
             }
