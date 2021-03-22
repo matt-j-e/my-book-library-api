@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const request = require('supertest');
-const { Genre, Book } = require('../src/models');
+const { Genre, Book, Author } = require('../src/models');
 const app = require('../src/app');
 const faker = require('faker');
 // const { response } = require('../src/app');
@@ -12,15 +12,18 @@ describe('/books', () => {
     describe('POST /books', () => {
 
       let testBook;
-      let testGenre
+      let testGenre;
+      let testAuthor;
 
       beforeEach(async () => {
         await Book.destroy({ where: {} });
         await Genre.destroy({ where: {} });
+        await Author.destroy({ where: {} });
         testGenre = await Genre.create({ name: "Fiction" });
+        testAuthor = await Author.create({ name: "Markus Zusak" });
         testBook = {
           title: 'The Book Thief',
-          author: 'Markus Zusak',
+          AuthorId: testAuthor.id,
           GenreId: testGenre.id,
           ISBN: '23456X'
         };
@@ -36,7 +39,7 @@ describe('/books', () => {
         expect(res.status).to.equal(201);
         expect(res.body.title).to.equal('The Book Thief');
         expect(newBook.title).to.equal('The Book Thief');
-        expect(newBook.author).to.equal('Markus Zusak');
+        expect(newBook.AuthorId).to.equal(testAuthor.id);
         expect(newBook.GenreId).to.equal(testGenre.id);
         expect(newBook.ISBN).to.equal('23456X');
       });
@@ -53,8 +56,8 @@ describe('/books', () => {
       });
 
       it('returns a 400 plus error message when author not provided', async () => {
-        testBook.author = null;
-        const errorMessages = ['Book.author cannot be null'];
+        testBook.AuthorId = null;
+        const errorMessages = ['Book.AuthorId cannot be null'];
         const res = await request(app)
           .post('/books')
           .send(testBook);
@@ -75,8 +78,8 @@ describe('/books', () => {
       });
 
       it('returns a 400 plus error message when author blank', async () => {
-        testBook.author = '';
-        const errorMessages = ['Validation notEmpty on author failed'];
+        testBook.AuthorId = '';
+        const errorMessages = ['Validation notEmpty on AuthorId failed'];
         const res = await request(app)
           .post('/books')
           .send(testBook);
@@ -90,20 +93,27 @@ describe('/books', () => {
   describe('with the database populated', () => {
 
     let testGenres;
+    let testAuthors;
 
     beforeEach(async () => {
       await Book.destroy({ where: {} });
       await Genre.destroy({ where: {} });
+      await Author.destroy({ where: {} });
 
       testGenres = await Promise.all([
         Genre.create({ name: "Fiction" }),
         Genre.create({ name: "Science Fiction" })
-      ])
+      ]);
+
+      testAuthors = await Promise.all([
+        Author.create({ name: "Markus Zusak" }),
+        Author.create({ name: "Philip K Dick" })
+      ]);
 
       books = await Promise.all([
-        Book.create({ title: faker.random.words(), author: faker.name.findName(), Genreid: testGenres[0].id, ISBN: faker.random.alphaNumeric() }),
-        Book.create({ title: faker.random.words(), author: faker.name.findName(), Genreid: testGenres[0].id, ISBN: faker.random.alphaNumeric() }),
-        Book.create({ title: faker.random.words(), author: faker.name.findName(), Genreid: testGenres[0].id, ISBN: faker.random.alphaNumeric() }),
+        Book.create({ title: faker.random.words(), AuthorId: testAuthors[0].id, Genreid: testGenres[0].id, ISBN: faker.random.alphaNumeric() }),
+        Book.create({ title: faker.random.words(), AuthorId: testAuthors[0].id, Genreid: testGenres[0].id, ISBN: faker.random.alphaNumeric() }),
+        Book.create({ title: faker.random.words(), AuthorId: testAuthors[0].id, Genreid: testGenres[0].id, ISBN: faker.random.alphaNumeric() }),
       ]);
     });
 
@@ -166,21 +176,18 @@ describe('/books', () => {
       });
 
       it('updates book author by id', async () => {
-        const newAuthor = faker.name.findName();
-        while (newAuthor === books[0].author) {
-          newAuthor = faker.name.findName();
-        }
+        const newAuthorId = testAuthors[1].id;
         const res = await request(app)
           .patch(`/books/${books[0].id}`)
           .send({
-            author: newAuthor
+            AuthorId: newAuthorId
           });
         
         const updatedBook = await Book.findByPk(books[0].id, { raw: true });
 
         expect(res.status).to.equal(200);
         expect(updatedBook.title).to.equal(books[0].title);
-        expect(updatedBook.author).to.equal(newAuthor);
+        expect(updatedBook.AuthorId).to.equal(newAuthorId);
         expect(updatedBook.genre).to.equal(books[0].genre);
         expect(updatedBook.ISBN).to.equal(books[0].ISBN);
       });

@@ -14,8 +14,8 @@ const getModel = (model) => {
 const getInclude = (model) => {
   const includes = {
     reader: null,
-    book: Genre,
-    author: null,
+    book: [Genre, Author],
+    author: Book,
     genre: Book
   };
 
