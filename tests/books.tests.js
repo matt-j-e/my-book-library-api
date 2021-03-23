@@ -155,7 +155,7 @@ describe('/books', () => {
     describe('PATCH /books/:bookId', () => {
 
       it('updates book title by id', async () => {
-        const newTitle = faker.random.words();
+        let newTitle = faker.random.words();
         while (newTitle === books[0].title) {
           newTitle = faker.random.words();
         }
@@ -210,7 +210,7 @@ describe('/books', () => {
       });
 
       it('updates book ISBN by id', async () => {
-        const newISBN = faker.random.alphaNumeric();
+        let newISBN = faker.random.alphaNumeric();
         while (newISBN === books[0].ISBN) {
           newISBN = faker.random.alphaNumeric();
         }
