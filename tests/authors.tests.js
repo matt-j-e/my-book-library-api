@@ -30,6 +30,7 @@ describe('/authors', () => {
 
         expect(res.status).to.equal(201);
         expect(res.body.name).to.equal('Markus Zusak');
+        expect(newAuthor.name).to.equal('Markus Zusak');
       });
 
       it('returns a 400 plus error message when name not provided', async () => {
