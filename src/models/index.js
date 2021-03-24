@@ -14,7 +14,7 @@ const setupDatabase = () => {
     //     logging: false
     // });
 
-    const connection = CLEARDB_DATASE_URL ?
+    const connection = CLEARDB_DATABASE_URL ?
 	new Sequelize(CLEARDB_DATABASE_URL) :
 	new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
         host: DB_HOST,
