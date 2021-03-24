@@ -5,6 +5,10 @@ const authorRouter = require('./routes/author');
 const genreRouter = require('./routes/genre');
 const app = express();
 
+app.get('/', (req, res) => {
+    res.send("Hello, world!");
+});
+
 app.use(express.json());
 app.use('/readers', readerRouter);
 app.use('/books', bookRouter);
