@@ -3,7 +3,7 @@ const request = require('supertest');
 const { Genre } = require('../src/models');
 const app = require('../src/app');
 const faker = require('faker');
-const { response } = require('../src/app');
+const helpers = require('./helpers');
 
 describe('/genres', () => {
   before(async () => await Genre.sequelize.sync());
@@ -63,11 +63,13 @@ describe('/genres', () => {
     beforeEach(async () => {
       await Genre.destroy({ where: {} });
 
-      genres = await Promise.all([
-        Genre.create({ name: faker.name.findName() }),
-        Genre.create({ name: faker.name.findName() }),
-        Genre.create({ name: faker.name.findName() }),
-      ]);
+      genres = await Promise.all(helpers.testData('genre'));
+
+      // genres = await Promise.all([
+      //   Genre.create({ name: faker.name.findName() }),
+      //   Genre.create({ name: faker.name.findName() }),
+      //   Genre.create({ name: faker.name.findName() }),
+      // ]);
     });
 
     describe('GET /genres', () => {

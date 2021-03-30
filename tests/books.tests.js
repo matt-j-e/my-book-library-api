@@ -3,7 +3,7 @@ const request = require('supertest');
 const { Genre, Book, Author } = require('../src/models');
 const app = require('../src/app');
 const faker = require('faker');
-// const { response } = require('../src/app');
+const helpers = require('./helpers');
 
 describe('/books', () => {
   before(async () => await Book.sequelize.sync());
@@ -94,21 +94,15 @@ describe('/books', () => {
 
     let testGenres;
     let testAuthors;
+    let books;
 
     beforeEach(async () => {
       await Book.destroy({ where: {} });
       await Genre.destroy({ where: {} });
       await Author.destroy({ where: {} });
 
-      testGenres = await Promise.all([
-        Genre.create({ name: "Fiction" }),
-        Genre.create({ name: "Science Fiction" })
-      ]);
-
-      testAuthors = await Promise.all([
-        Author.create({ name: "Markus Zusak" }),
-        Author.create({ name: "Philip K Dick" })
-      ]);
+      testGenres = await Promise.all(helpers.testData('genre'));
+      testAuthors = await Promise.all(helpers.testData('author'));
 
       books = await Promise.all([
         Book.create({ title: faker.random.words(), AuthorId: testAuthors[0].id, Genreid: testGenres[0].id, ISBN: faker.random.alphaNumeric() }),

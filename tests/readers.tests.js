@@ -3,7 +3,6 @@ const request = require('supertest');
 const { Reader } = require('../src/models');
 const app = require('../src/app');
 const faker = require('faker');
-const { response } = require('../src/app');
 
 describe('/readers', () => {
   before(async () => await Reader.sequelize.sync());

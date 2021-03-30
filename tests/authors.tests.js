@@ -3,7 +3,7 @@ const request = require('supertest');
 const { Author } = require('../src/models');
 const app = require('../src/app');
 const faker = require('faker');
-const { response } = require('../src/app');
+const helpers = require('./helpers');
 
 describe('/authors', () => {
   before(async () => await Author.sequelize.sync());
@@ -64,11 +64,13 @@ describe('/authors', () => {
     beforeEach(async () => {
       await Author.destroy({ where: {} });
 
-      authors = await Promise.all([
-        Author.create({ name: faker.name.findName() }),
-        Author.create({ name: faker.name.findName() }),
-        Author.create({ name: faker.name.findName() }),
-      ]);
+      authors = await Promise.all(helpers.testData('author'));
+
+      // authors = await Promise.all([
+      //   Author.create({ name: faker.name.findName() }),
+      //   Author.create({ name: faker.name.findName() }),
+      //   Author.create({ name: faker.name.findName() }),
+      // ]);
     });
 
     describe('GET /authors', () => {
